@@ -147,10 +147,18 @@ void Creature::draw(const Rect& destRect, const uint8_t size, const bool center,
     const int tileCount = 2;
     const int fbSize = autoFit ? std::max<int>(nativeSize, baseSprite) : tileCount * baseSprite;
 
+    // When mounted, internalDraw() draws the mount with the MOUNT's displacement (mounts have no "shift"
+    // in the official 15.x appearances, so it is 0,0) and only adds the outfit's displacement (8,8) for the
+    // rider. Anchoring the framebuffer by the outfit's displacement pushed mount + rider 8px right/down and
+    // the 64px framebuffer clipped them (outfit window preview). The map has no framebuffer, so it looked fine there.
+    const Point anchorDisplacement = (m_outfit.isCreature() && m_outfit.hasMount() && getMountThingType())
+        ? getMountThingType()->getDisplacement()
+        : getDisplacement();
+
     g_drawPool.bindFrameBuffer(fbSize); {
         Point p = center
-            ? Point((fbSize - nativeSize) / 2 + (nativeSize - baseSprite)) + getDisplacement()
-            : Point(fbSize - baseSprite) + getDisplacement();
+            ? Point((fbSize - nativeSize) / 2 + (nativeSize - baseSprite)) + anchorDisplacement
+            : Point(fbSize - baseSprite) + anchorDisplacement;
 
         internalDraw(p);
         if (isMarked())           internalDraw(p, getMarkedColor());
