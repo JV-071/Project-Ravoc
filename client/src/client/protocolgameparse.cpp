@@ -869,8 +869,11 @@ void ProtocolGame::parsePreset(const InputMessagePtr& msg)
 
 void ProtocolGame::parseRequestPurchaseData(const InputMessagePtr& msg)
 {
-    msg->getU32(); // transactionId
-    msg->getU8(); // productType
+    // The server sends this to ask for purchase data (new character name, hireling name). The bytes were read and
+    // dropped, so game_store never opened the name window and the client stayed on "Processing purchase".
+    const uint32_t offerId = msg->getU32();
+    const uint8_t productType = msg->getU8();
+    g_lua.callGlobalField("g_game", "onParseStoreRequestPurchaseData", offerId, productType);
 }
 
 void ProtocolGame::parseResourceBalance(const InputMessagePtr& msg) const
