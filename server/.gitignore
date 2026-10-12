@@ -413,3 +413,6 @@ cmake-build-*
 # Local CI tools and dependency/compiler caches
 /.tools/
 /.cache/
+
+# Integration tests use the versioned server schema.
+!/schema.sql
